@@ -10,7 +10,7 @@ import javax.mail.Session;
 
 /**
  *
- * @author Juan Barajas
+ * @author Sergio Flores
  */
 public class SMailSender {
 

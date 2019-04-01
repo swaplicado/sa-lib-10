@@ -13,4 +13,7 @@ public abstract class SMailConsts {
     public static final String CONT_TP_MULT_MIXED = "multipart/mixed";
     public static final String CONT_TP_TEXT_PLAIN = "text/plain";
     public static final String CONT_TP_TEXT_HTML = "text/html";
+    
+    public static final String SUBJECT_ENC_UTF8_BEGIN = "=?UTF-8?B?";
+    public static final String SUBJECT_ENC_UTF8_END = "?=";
 }

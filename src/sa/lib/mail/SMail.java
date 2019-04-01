@@ -20,7 +20,7 @@ import javax.mail.internet.MimeMultipart;
 
 /**
  *
- * @author Juan Barajas, Sergio Flores
+ * @author Sergio Flores
  */
 public class SMail {
 
