@@ -338,7 +338,7 @@ public abstract class SGridPaneView extends JPanel implements SGridPane, ListSel
 
         jpStatusCenter.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 5, 0));
 
-        jtfGridSearch.setToolTipText("Buscar (Ctrl + B)");
+        jtfGridSearch.setToolTipText("Buscar (Ctrl+B)");
         jtfGridSearch.setPreferredSize(new java.awt.Dimension(100, 23));
         jtfGridSearch.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
