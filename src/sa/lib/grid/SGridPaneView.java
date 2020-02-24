@@ -347,6 +347,7 @@ public abstract class SGridPaneView extends JPanel implements SGridPane, ListSel
         });
         jpStatusCenter.add(jtfGridSearch);
 
+        jbGridSearchNext.setIcon(new javax.swing.ImageIcon(getClass().getResource("/sa/lib/img/cmd_grid_next.gif"))); // NOI18N
         jbGridSearchNext.setToolTipText("Siguiente (F3)");
         jbGridSearchNext.setPreferredSize(new java.awt.Dimension(23, 23));
         jbGridSearchNext.addActionListener(new java.awt.event.ActionListener() {
@@ -417,11 +418,11 @@ public abstract class SGridPaneView extends JPanel implements SGridPane, ListSel
     }//GEN-LAST:event_jtbAutoReloadActionPerformed
 
     private void jtfGridSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jtfGridSearchActionPerformed
-        actionGridSearchNextValue();
+        actionGridSearchValue();
     }//GEN-LAST:event_jtfGridSearchActionPerformed
 
     private void jbGridSearchNextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbGridSearchNextActionPerformed
-        actionGridSearchValue();
+        actionGridSearchNextValue();
     }//GEN-LAST:event_jbGridSearchNextActionPerformed
 
     private void initComponentsCustom() {
