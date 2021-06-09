@@ -27,6 +27,10 @@ public class SSrvLock implements Serializable {
 
     /**
      * Creates new SSrvLock.
+     * @param companyId
+     * @param registryType
+     * @param pk
+     * @param timeout
      */
     public SSrvLock(int companyId, int registryType, Object pk, long timeout) {
         this(0, companyId, registryType, pk, timeout, null);
@@ -34,6 +38,11 @@ public class SSrvLock implements Serializable {
 
     /**
      * Creates new SSrvLock.
+     * @param companyId
+     * @param registryType
+     * @param pk
+     * @param timeout
+     * @param timestamp
      */
     public SSrvLock(int companyId, int registryType, Object pk, long timeout, Date timestamp) {
         this(0, companyId, registryType, pk, timeout, timestamp);
@@ -41,6 +50,12 @@ public class SSrvLock implements Serializable {
 
     /**
      * Creates new SSrvLock.
+     * @param sessionId
+     * @param companyId
+     * @param registryType
+     * @param pk
+     * @param timeout
+     * @param timestamp
      */
     public SSrvLock(int sessionId, int companyId, int registryType, Object pk, long timeout, Date timestamp) {
         mnSessionId = sessionId;

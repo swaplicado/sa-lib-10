@@ -6,6 +6,7 @@ package sa.lib.srv;
 
 import java.rmi.RemoteException;
 import java.util.Date;
+import javax.swing.JOptionPane;
 import sa.lib.SLibConsts;
 import sa.lib.gui.SGuiSession;
 
@@ -20,7 +21,7 @@ public abstract class SSrvUtils {
      * @param lockRequestedAction Constants defined in sa.lib.srv.SSrvConsts (gain or recover lock).
      * @param lock Lock on data registry.
      */
-    private static void evaluateLockObtention(final int lockRequestedAction, final SSrvLock lock) throws Exception {
+    private static SSrvLock evaluateLockObtention(final SGuiSession session, final int lockRequestedAction, final SSrvLock lock) throws Exception {
         int lockObtained = SLibConsts.UNDEFINED;
         int lockDenied = SLibConsts.UNDEFINED;
         String msg = "";
@@ -42,12 +43,28 @@ public abstract class SSrvUtils {
 
         if (lock.getLockStatus() != lockObtained) {
             if (lock.getLockStatus() == lockDenied) {
-                throw new Exception(msg + lock.getLockUser());
+                if (lock.getLockUser().equals(session.getUser().getName())){
+                    if (session.getClient().showMsgBoxConfirm("No fue posible recuperar el acceso exclusivo al registro ya que está siendo utilizado por usted mismo.\n¿Desea retirar el bloqueo?") == JOptionPane.OK_OPTION) {
+                        releaseLock(session, lock);
+                        SSrvRequest request = new SSrvRequest(lockRequestedAction, lock);
+                        SSrvResponse response = session.getSessionServerSide().request(request);
+                        evaluateLockObtention(session, lockRequestedAction, (SSrvLock) response.getPacket());
+                        return (SSrvLock) response.getPacket();
+                    }
+                    else {
+                        throw new Exception("Puede esperar a que el acceso exclusivo expire para intentarlo de nuevo.");
+                    }
+                }
+                else {
+                    throw new Exception(msg + lock.getLockUser());
+                }
             }
             else {
                 throw new Exception(SSrvConsts.MSG_ERR_LOCK_ON_EVALUATE);
             }
         }
+        
+        return lock;
     }
 
     /** Obtains lock on data registry.
@@ -69,10 +86,10 @@ public abstract class SSrvUtils {
             throw new Exception(response.getMessage());
         }
         else {
-            evaluateLockObtention(lockRequestedAction, (SSrvLock) response.getPacket());
+            lock = evaluateLockObtention(session, lockRequestedAction, (SSrvLock) response.getPacket());
         }
 
-        return (SSrvLock) response.getPacket();
+        return lock;
     }
 
     /** Gains lock on data registry.
