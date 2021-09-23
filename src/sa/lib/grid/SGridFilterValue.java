@@ -7,7 +7,7 @@ package sa.lib.grid;
 
 /**
  *
- * @author Juan Barajas
+ * @author Sergio Flores
  */
 public class SGridFilterValue {
     

@@ -10,7 +10,7 @@ import sa.lib.xml.SXmlElement;
 
 /**
  *
- * @author Juan Barajas
+ * @author Sergio Flores
  */
 public class SXmlFilter extends SXmlElement {
 
