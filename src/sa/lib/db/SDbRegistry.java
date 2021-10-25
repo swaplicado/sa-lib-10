@@ -15,6 +15,7 @@ import sa.lib.SLibUtils;
 import sa.lib.gui.SGuiParams;
 import sa.lib.gui.SGuiSession;
 import sa.lib.srv.SSrvLock;
+import sa.lib.srv.redis.SRedisLock;
 
 /**
  *
@@ -39,6 +40,7 @@ public abstract class SDbRegistry {
     protected Method moPostSaveMethod;
     protected Object[] maoPostSaveMethodArgs;
     protected ArrayList<SSrvLock> maLocks;
+    protected ArrayList<SRedisLock> maRedisLocks;
 
     protected int mnQueryResultId;
     protected String msQueryResult;
@@ -62,7 +64,8 @@ public abstract class SDbRegistry {
         moPostSaveTarget = null;
         moPostSaveMethod = null;
         maoPostSaveMethodArgs = null;
-        maLocks = new ArrayList<SSrvLock>();
+        maLocks = new ArrayList<>();
+        maRedisLocks = new ArrayList<>();
     }
 
     public void initQueryMembers() {
@@ -106,6 +109,7 @@ public abstract class SDbRegistry {
     public Method getPostSaveMethod() { return moPostSaveMethod; }
     public Object[] getPostSaveMethodArgs() { return maoPostSaveMethodArgs; }
     public ArrayList<SSrvLock> getLocks() { return maLocks; }
+    public ArrayList<SRedisLock> getRedisLocks() { return maRedisLocks; }
 
     public int getQueryResultId() { return mnQueryResultId; }
     public String getQueryResult() { return msQueryResult; }
