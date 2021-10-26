@@ -30,7 +30,7 @@ public class SRedisLockKey {
     protected String msLockKey;
 
     public SRedisLockKey(final String lockKey) {
-        String[] key = msLockKey.split("\\+");
+        String[] key = lockKey.split("\\+");
         setLockKey(
                 SLibUtils.parseInt(key[KEY_LOCK_ID_INDEX]),
                 SLibUtils.parseInt(key[KEY_COMPANY_ID_INDEX]),
