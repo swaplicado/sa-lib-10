@@ -5,13 +5,14 @@
  */
 package sa.lib.srv.redis;
 
+import java.io.Serializable;
 import sa.lib.SLibUtils;
 
 /**
  *
  * @author Adrián Avilés
  */
-public class SRedisLockKey {
+public class SRedisLockKey implements Serializable {
 
     public static final String LOCK = "Lock";
     public static final int KEY_LOCK_ID_INDEX = 1;
@@ -87,6 +88,10 @@ public class SRedisLockKey {
     
     public String getLockKeyForSearch() {
         return composeLockKey("*", "" + mnCompanyId, "" + mnRegistryType, msRegistryPk, "*", "*");
+    }
+    
+    public boolean isDummy() {
+        return mlLockId == 0;
     }
     
     public static String composeLockKey(final String lockId, final String companyId, final String registryType, final String registryPk, final String sessionId, final String userId) {

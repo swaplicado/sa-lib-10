@@ -1,8 +1,9 @@
 package sa.lib.srv.redis;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class SRedisLock {
+public class SRedisLock implements Serializable {
 
     private Object moRegistryPk;
     private long mlTimeout;
