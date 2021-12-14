@@ -318,6 +318,8 @@ public abstract class SGuiModule implements SGuiController {
                     moLastRegistry.setRegistryEdited(true);
                     miClient.getSession().notifySuscriptors(moLastRegistry.getRegistryType());
                 }
+                
+                afterRegistrySaved();
             }
         }
         catch (SQLException e) {
@@ -627,5 +629,9 @@ public abstract class SGuiModule implements SGuiController {
         }
 
         return result;
+    }
+    
+    public void afterRegistrySaved() {
+        
     }
 }
