@@ -159,6 +159,7 @@ public abstract class SGuiModule implements SGuiController {
     public SDbRegistry getLastRegistry() { return moLastRegistry; }
     public HashMap<SGuiUserForm, SGuiForm> getUserFormsMap() { return moUserFormsMap; }
     public ImageIcon getModuleIcon() { return moModuleIcon; }
+    public void afterRegistrySaved() { }
 
     public abstract JMenu[] getMenus();
     public abstract SDbRegistry getRegistry(final int type, final SGuiParams params);
@@ -629,9 +630,5 @@ public abstract class SGuiModule implements SGuiController {
         }
 
         return result;
-    }
-    
-    public void afterRegistrySaved() {
-        
     }
 }
