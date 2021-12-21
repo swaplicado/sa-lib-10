@@ -28,12 +28,12 @@ import sa.lib.db.SDbRegistry;
 import sa.lib.grid.SGridConsts;
 import sa.lib.grid.SGridPaneView;
 import sa.lib.grid.SGridTabComponent;
-import sa.lib.srv.SSrvLock;
-import sa.lib.srv.SSrvUtils;
+import sa.lib.srv.redis.SRedisLock;
+import sa.lib.srv.redis.SRedisLockManagerInterface;
 
 /**
  *
- * @author Sergio Flores
+ * @author Sergio Flores, Adrián Avilés
  */
 public abstract class SGuiModule implements SGuiController {
 
@@ -49,6 +49,7 @@ public abstract class SGuiModule implements SGuiController {
     protected SDbRegistry moLastRegistry;
     protected HashMap<SGuiUserForm, SGuiForm> moUserFormsMap;
     protected ImageIcon moModuleIcon;
+    protected SRedisLockManagerInterface miLockManager;
 
     public SGuiModule(SGuiClient client, int type, int subtype) {
         miClient = client;
@@ -59,6 +60,7 @@ public abstract class SGuiModule implements SGuiController {
         moLastRegistry = null;
         moUserFormsMap = null;
         moModuleIcon = null;
+        miLockManager = (SRedisLockManagerInterface) miClient.getLockManager();
     }
 
     /*
@@ -167,7 +169,7 @@ public abstract class SGuiModule implements SGuiController {
     public abstract SGuiOptionPicker getOptionPicker(final int type, final int subtype, final SGuiParams params);
     public abstract SGuiForm getForm(final int type, final int subtype, final SGuiParams params);
     public abstract SGuiReport getReport(final int type, final int subtype, final SGuiParams params);
-
+     
     @Override
     @SuppressWarnings("unchecked")
     public void populateCatalogue(JComboBox comboBox, final int type, final int subtype, final SGuiParams params) {
@@ -246,11 +248,14 @@ public abstract class SGuiModule implements SGuiController {
     public void showForm(final int type, final int subtype, final SGuiParams params) {
         SGuiForm form = null;
         SDbRegistry registry = null;
+/* Linea de codigo de respaldo correspondiente a la version antigua sin Redis de candado de acceso exclusivo a registro       
         SSrvLock lock = null;
-
+*/        
+        SRedisLock rlock = null;
+        
         try {
             SGuiUtils.setCursorWait(miClient);
-
+            
             form = getForm(type, subtype, params);
             registry = getRegistry(type, params);
             moLastRegistry = null;
@@ -274,10 +279,14 @@ public abstract class SGuiModule implements SGuiController {
                 else {
                     // Registry edition:
 
+                    if (miLockManager != null) {
+                        rlock = miLockManager.gainLock(miClient, type, params.getKey(), registry.getTimeout() / 1000);
+                    }
+/* Bloque de codigo de respaldo correspondiente a la version antigua sin Redis de candado de acceso exclusivo a registro
                     if (mbServerPresent) {
                         lock = SSrvUtils.gainLock(miClient.getSession(), miClient.getSession().getConfigCompany().getCompanyId(), type, params.getKey(), registry.getTimeout());
                     }
-
+*/                    
                     registry.read(miClient.getSession(), params.getKey());
                     registry.setFormAction(SGuiConsts.FORM_ACTION_EDIT);
                 }
@@ -299,7 +308,17 @@ public abstract class SGuiModule implements SGuiController {
 
             if (form.getFormResult() == SGuiConsts.FORM_RESULT_OK) {
                 registry = form.getRegistry();
-
+                
+                if (miLockManager != null) {
+                    if (rlock != null) {
+                        rlock = miLockManager.verifyLockStatus(miClient, rlock);
+                    }
+                    for (int i = 0; i < registry.getRedisLocks().size(); i++) {
+                        SRedisLock rl = miLockManager.verifyLockStatus(miClient, registry.getRedisLocks().get(i));
+                        registry.getRedisLocks().set(i, rl);
+                    }
+                }
+/* Bloque de codigo de respaldo correspondiente a la version antigua de candado de acceso exclusivo a registro                
                 if (mbServerPresent) {
                     if (lock != null) {
                         lock = SSrvUtils.verifyLockStatus(miClient.getSession(), lock);
@@ -309,7 +328,7 @@ public abstract class SGuiModule implements SGuiController {
                         registry.getLocks().set(i, sl);
                     }
                 }
-
+*/
                 if (miClient.getSession().saveRegistry(registry) != SDbConsts.SAVE_OK) {
                     moLastRegistry = null;
                 }
@@ -318,6 +337,7 @@ public abstract class SGuiModule implements SGuiController {
                     moLastRegistry.setRegistryEdited(true);
                     miClient.getSession().notifySuscriptors(moLastRegistry.getRegistryType());
                 }
+                afterRegistrySaved();
             }
         }
         catch (SQLException e) {
@@ -336,6 +356,17 @@ public abstract class SGuiModule implements SGuiController {
         finally {
             if (mbServerPresent) {
                 try {
+                    if (miLockManager != null) {
+                        if (rlock != null) {
+                            miLockManager.releaseLock(miClient, rlock);
+                        }
+                        if (registry != null) {
+                            for (SRedisLock rl : registry.getRedisLocks()) {
+                                miLockManager.releaseLock(miClient, rl);
+                            }
+                        }
+                    }
+/* Bloque de codigo de respaldo correspondiente a la version antigua sin Redis de candado de acceso exclusivo a registro                   
                     if (lock != null) {
                         SSrvUtils.releaseLock(miClient.getSession(), lock);
                     }
@@ -344,6 +375,7 @@ public abstract class SGuiModule implements SGuiController {
                             SSrvUtils.releaseLock(miClient.getSession(), sl);
                         }
                     }
+*/
                 }
                 catch (RemoteException e) {
                     SLibUtils.showException(this, e);
@@ -628,4 +660,7 @@ public abstract class SGuiModule implements SGuiController {
 
         return result;
     }
+    
+    public void afterRegistrySaved() {}
+
 }

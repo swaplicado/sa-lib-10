@@ -48,4 +48,6 @@ public interface SGuiClient {
     public void showMsgBoxWarning(final String msg);
     public void showMsgBoxInformation(final String msg);
     public int showMsgBoxConfirm(final String msg);
+    
+    public Object getLockManager();
 }
