@@ -41,8 +41,9 @@ public abstract class SDbRegistry implements Serializable {
     protected Method moPostSaveMethod;
     protected Object[] maoPostSaveMethodArgs;
     protected ArrayList<SSrvLock> maLocks;
+/* Bloque de codigo correspondiente a los candados de Redis    
     protected ArrayList<SRedisLock> maRedisLocks;
-
+*/
     protected int mnQueryResultId;
     protected String msQueryResult;
     protected String msSql;
@@ -66,7 +67,9 @@ public abstract class SDbRegistry implements Serializable {
         moPostSaveMethod = null;
         maoPostSaveMethodArgs = null;
         maLocks = new ArrayList<>();
+/* Bloque de codigo correspondiente a los candados de Redis        
         maRedisLocks = new ArrayList<>();
+*/    
     }
 
     public void initQueryMembers() {
@@ -110,8 +113,9 @@ public abstract class SDbRegistry implements Serializable {
     public Method getPostSaveMethod() { return moPostSaveMethod; }
     public Object[] getPostSaveMethodArgs() { return maoPostSaveMethodArgs; }
     public ArrayList<SSrvLock> getLocks() { return maLocks; }
+/* Bloque de codigo correspondiente a los candados de Redis    
     public ArrayList<SRedisLock> getRedisLocks() { return maRedisLocks; }
-
+*/
     public int getQueryResultId() { return mnQueryResultId; }
     public String getQueryResult() { return msQueryResult; }
     public String getSql() { return msSql; }

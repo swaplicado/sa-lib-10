@@ -28,8 +28,12 @@ import sa.lib.db.SDbRegistry;
 import sa.lib.grid.SGridConsts;
 import sa.lib.grid.SGridPaneView;
 import sa.lib.grid.SGridTabComponent;
+import sa.lib.srv.SSrvLock;
+import sa.lib.srv.SSrvUtils;
+/* Bloque de codigo correspondiente a los candados de Redis
 import sa.lib.srv.redis.SRedisLock;
 import sa.lib.srv.redis.SRedisLockManagerInterface;
+*/
 
 /**
  *
@@ -49,7 +53,9 @@ public abstract class SGuiModule implements SGuiController {
     protected SDbRegistry moLastRegistry;
     protected HashMap<SGuiUserForm, SGuiForm> moUserFormsMap;
     protected ImageIcon moModuleIcon;
+/* Bloque de codigo correspondiente a los candados de Redis    
     protected SRedisLockManagerInterface miLockManager;
+*/    
 
     public SGuiModule(SGuiClient client, int type, int subtype) {
         miClient = client;
@@ -60,7 +66,9 @@ public abstract class SGuiModule implements SGuiController {
         moLastRegistry = null;
         moUserFormsMap = null;
         moModuleIcon = null;
+/* Bloque de codigo correspondiente a los candados de Redis        
         miLockManager = (SRedisLockManagerInterface) miClient.getLockManager();
+*/        
     }
 
     /*
@@ -249,11 +257,11 @@ public abstract class SGuiModule implements SGuiController {
     public void showForm(final int type, final int subtype, final SGuiParams params) {
         SGuiForm form = null;
         SDbRegistry registry = null;
-/* Linea de codigo de respaldo correspondiente a la version antigua sin Redis de candado de acceso exclusivo a registro       
+/* Linea de codigo de respaldo correspondiente a la version antigua sin Redis de candado de acceso exclusivo a registro */       
         SSrvLock lock = null;
-*/        
+/* Bloque de codigo correspondiente a los candados de Redis
         SRedisLock rlock = null;
-        
+*/        
         try {
             SGuiUtils.setCursorWait(miClient);
             
@@ -279,15 +287,16 @@ public abstract class SGuiModule implements SGuiController {
                 }
                 else {
                     // Registry edition:
-
+/* Bloque de codigo correspondiente a los candados de Redis
                     if (miLockManager != null) {
                         rlock = miLockManager.gainLock(miClient, type, params.getKey(), registry.getTimeout() / 1000);
                     }
-/* Bloque de codigo de respaldo correspondiente a la version antigua sin Redis de candado de acceso exclusivo a registro
+*/                    
+
                     if (mbServerPresent) {
                         lock = SSrvUtils.gainLock(miClient.getSession(), miClient.getSession().getConfigCompany().getCompanyId(), type, params.getKey(), registry.getTimeout());
                     }
-*/                    
+                    
                     registry.read(miClient.getSession(), params.getKey());
                     registry.setFormAction(SGuiConsts.FORM_ACTION_EDIT);
                 }
@@ -309,7 +318,7 @@ public abstract class SGuiModule implements SGuiController {
 
             if (form.getFormResult() == SGuiConsts.FORM_RESULT_OK) {
                 registry = form.getRegistry();
-                
+/* Bloque de codigo correspondiente a los candados de Redis                
                 if (miLockManager != null) {
                     if (rlock != null) {
                         rlock = miLockManager.verifyLockStatus(miClient, rlock);
@@ -319,7 +328,8 @@ public abstract class SGuiModule implements SGuiController {
                         registry.getRedisLocks().set(i, rl);
                     }
                 }
-/* Bloque de codigo de respaldo correspondiente a la version antigua de candado de acceso exclusivo a registro                
+*/                
+/* Bloque de codigo de respaldo correspondiente a la version antigua de candado de acceso exclusivo a registro */               
                 if (mbServerPresent) {
                     if (lock != null) {
                         lock = SSrvUtils.verifyLockStatus(miClient.getSession(), lock);
@@ -329,7 +339,7 @@ public abstract class SGuiModule implements SGuiController {
                         registry.getLocks().set(i, sl);
                     }
                 }
-*/
+
                 if (miClient.getSession().saveRegistry(registry) != SDbConsts.SAVE_OK) {
                     moLastRegistry = null;
                 }
@@ -357,6 +367,7 @@ public abstract class SGuiModule implements SGuiController {
         finally {
             if (mbServerPresent) {
                 try {
+/* Bloque de codigo correspondiente a los candados de Redis                    
                     if (miLockManager != null) {
                         if (rlock != null) {
                             miLockManager.releaseLock(miClient, rlock);
@@ -367,7 +378,8 @@ public abstract class SGuiModule implements SGuiController {
                             }
                         }
                     }
-/* Bloque de codigo de respaldo correspondiente a la version antigua sin Redis de candado de acceso exclusivo a registro                   
+*/                    
+/* Bloque de codigo de respaldo correspondiente a la version antigua sin Redis de candado de acceso exclusivo a registro  */                 
                     if (lock != null) {
                         SSrvUtils.releaseLock(miClient.getSession(), lock);
                     }
@@ -376,7 +388,7 @@ public abstract class SGuiModule implements SGuiController {
                             SSrvUtils.releaseLock(miClient.getSession(), sl);
                         }
                     }
-*/
+
                 }
                 catch (RemoteException e) {
                     SLibUtils.showException(this, e);
