@@ -48,7 +48,8 @@ public interface SGuiClient {
     public void showMsgBoxWarning(final String msg);
     public void showMsgBoxInformation(final String msg);
     public int showMsgBoxConfirm(final String msg);
-/* Bloque de codigo correspondiente a los candados de Redis    
+    /* Bloque de codigo de respaldo correspondiente a la version con Redis de candado de acceso exclusivo a registro
     public Object getLockManager();
-*/    
+    */
+    public Object getLockManager();
 }

@@ -15,8 +15,7 @@ import sa.lib.SLibConsts;
 import sa.lib.SLibUtils;
 import sa.lib.gui.SGuiParams;
 import sa.lib.gui.SGuiSession;
-import sa.lib.srv.SSrvLock;
-import sa.lib.srv.redis.SRedisLock;
+import sa.lib.srv.SLock;
 
 /**
  *
@@ -40,10 +39,13 @@ public abstract class SDbRegistry implements Serializable {
     protected Object moPostSaveTarget;
     protected Method moPostSaveMethod;
     protected Object[] maoPostSaveMethodArgs;
+    /* Bloque de codigo de respaldo correspondiente a la version antigua sin Redis de candado de acceso exclusivo a registro
     protected ArrayList<SSrvLock> maLocks;
-/* Bloque de codigo correspondiente a los candados de Redis    
+    */
+    /* Bloque de codigo de respaldo correspondiente a la version con Redis de candado de acceso exclusivo a registro
     protected ArrayList<SRedisLock> maRedisLocks;
-*/
+    */
+    protected ArrayList<SLock> maSLocks;
     protected int mnQueryResultId;
     protected String msQueryResult;
     protected String msSql;
@@ -66,10 +68,13 @@ public abstract class SDbRegistry implements Serializable {
         moPostSaveTarget = null;
         moPostSaveMethod = null;
         maoPostSaveMethodArgs = null;
+        /* Bloque de codigo de respaldo correspondiente a la version antigua sin Redis de candado de acceso exclusivo a registro
         maLocks = new ArrayList<>();
-/* Bloque de codigo correspondiente a los candados de Redis        
+        */
+        /* Bloque de codigo de respaldo correspondiente a la version con Redis de candado de acceso exclusivo a registro
         maRedisLocks = new ArrayList<>();
-*/    
+        */
+        maSLocks = new ArrayList<>();
     }
 
     public void initQueryMembers() {
@@ -112,10 +117,13 @@ public abstract class SDbRegistry implements Serializable {
     public Object getPostSaveTarget() { return moPostSaveTarget; }
     public Method getPostSaveMethod() { return moPostSaveMethod; }
     public Object[] getPostSaveMethodArgs() { return maoPostSaveMethodArgs; }
+    /* Bloque de codigo de respaldo correspondiente a la version antigua sin Redis de candado de acceso exclusivo a registro
     public ArrayList<SSrvLock> getLocks() { return maLocks; }
-/* Bloque de codigo correspondiente a los candados de Redis    
+    */
+    /* Bloque de codigo de respaldo correspondiente a la version con Redis de candado de acceso exclusivo a registro
     public ArrayList<SRedisLock> getRedisLocks() { return maRedisLocks; }
-*/
+    */
+    public ArrayList<SLock> getSLocks() { return maSLocks; }
     public int getQueryResultId() { return mnQueryResultId; }
     public String getQueryResult() { return msQueryResult; }
     public String getSql() { return msSql; }
