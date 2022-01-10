@@ -84,6 +84,8 @@ public class SGuiConsts {
     public static final int PARAM_ROWS = 101;
     public static final int PARAM_REGS_ACT = 201; // only active registries
     public static final int PARAM_REGS_ALL = 202; // all registries
+    public static final int PARAM_ANNUL_REASON = 301;
+    public static final int PARAM_ANNUL_RELATED_UUID = 302;
 
     public static final String TXT_BTN_FIND = "Buscar";
     public static final String TXT_BTN_SAVE = "Guardar";
