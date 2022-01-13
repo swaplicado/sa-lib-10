@@ -13,7 +13,7 @@ import sa.lib.SLibConsts;
  *
  * @author Sergio Flores
  */
-public class SSrvLock implements Serializable {
+public class SSrvLock extends SLock implements Serializable {
 
     protected int mnSessionId;
     protected int mnCompanyId;
