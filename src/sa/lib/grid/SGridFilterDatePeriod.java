@@ -34,7 +34,11 @@ public class SGridFilterDatePeriod extends JPanel implements SGridFilter {
     protected SGuiDatePicker moDatePicker;
     protected SGuiDate moDate;
 
-    /** Creates new form SGridFilterDatePeriod */
+    /** Creates new form SGridFilterDatePeriod
+     * @param client
+     * @param paneView
+     * @param datePickerType
+     */
     public SGridFilterDatePeriod(SGuiClient client, SGridPaneView paneView, int datePickerType) {
         miClient = client;
         moPaneView = paneView;
@@ -217,6 +221,7 @@ public class SGridFilterDatePeriod extends JPanel implements SGridFilter {
             jtfPeriod.setText(format.format(moDate));
             
             if (broadcastEvent) {
+                // update filter into view, note that this WILL trigger a view update:
                 moPaneView.putFilter(SGridConsts.FILTER_DATE_PERIOD, new SGridFilterValue(SGridConsts.FILTER_DATE, SGridConsts.FILTER_DATA_TYPE_GUIDATE, moDate));
             }
         }
@@ -287,10 +292,9 @@ public class SGridFilterDatePeriod extends JPanel implements SGridFilter {
      */
     @Override
     public void initFilter(final Object value) {
-        // 1. set date:
+        // set filter:
         setPeriod((SGuiDate) value, false);
-        
-        // 2. once date set, set filter:
+        // then update filter into view, note that this WILL NOT trigger a view update:
         moPaneView.getFiltersMap().put(SGridConsts.FILTER_DATE_PERIOD, new SGridFilterValue(SGridConsts.FILTER_DATE, SGridConsts.FILTER_DATA_TYPE_GUIDATE, moDate));
     }
     
