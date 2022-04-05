@@ -10,15 +10,15 @@ public class SRedisLock implements Serializable {
     protected SRedisLockKey moLockKey;
     private Date mtLockTimestamp;
     
-    public SRedisLock(final Object registryPk, final long timeout, final SRedisLockKey lockKey) {
+    public SRedisLock(final Object registryPk, final long timeout, final SRedisLockKey lockKey, final Date date) {
         moRegistryPk = registryPk;
         mlTimeout = timeout;
         moLockKey = lockKey;
-        updateLockTimestamp();
+        updateLockTimestamp(date);
     }
 
-    public final void updateLockTimestamp() {
-        mtLockTimestamp = new Date();
+    public final void updateLockTimestamp(Date date) {
+        mtLockTimestamp = date;
     }
     
     public Object getRegistryPk() {
