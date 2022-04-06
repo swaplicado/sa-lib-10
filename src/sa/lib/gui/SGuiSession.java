@@ -14,6 +14,7 @@ import javax.swing.JComboBox;
 import sa.lib.SLibConsts;
 import sa.lib.SLibTimeUtils;
 import sa.lib.SLibUtils;
+import sa.lib.db.SDbConsts;
 import sa.lib.db.SDbDatabase;
 import sa.lib.db.SDbDatabaseMonitor;
 import sa.lib.db.SDbRegistry;
@@ -40,19 +41,52 @@ public class SGuiSession implements SGuiController {
     protected SGuiConfigBranch miConfigBranch;
     protected SGuiConfigBranch miConfigBranchHq;
     protected SGuiEdsSignature miEdsSignature;
-    protected SSrvSessionServerSide miSessionServerSide;
     protected SGuiModuleUtils miModuleUtils;
     protected Vector<SGuiModule> mvModules;
+    protected SSrvSessionServerSide miSessionServerSide;
 
     public SGuiSession(SGuiClient client) {
         miClient = client;
-        mvModules = new Vector<SGuiModule>();
+        
+        mvModules = new Vector<>();
         initSession();
     }
 
     private void stopMonitor() {
         if (moDatabaseMonitor != null && moDatabaseMonitor.isAlive()) {
             moDatabaseMonitor.stopThread();
+        }
+    }
+
+    private void checkStatement() {
+        try {
+            // check database:
+            
+            if (moDatabase == null) {
+                throw new Exception("No se ha definido la base de datos.");
+            }
+            else if (!moDatabase.isConnected()) {
+                if (moDatabase.reconnect() != SDbConsts.CONNECTION_OK) {
+                    throw new Exception("No se pudo reconectar la base de datos.");
+                }
+            }
+            
+            // check database:
+            
+            if (miStatement == null || miStatement.isClosed()) {
+                if (moDatabaseMonitor == null || !moDatabaseMonitor.isAlive()) {
+                    prepareDatabase(); // creates statement aswell
+                }
+                else {
+                    miStatement = moDatabase.getConnection().createStatement();
+                }
+            }
+        }
+        catch (SQLException e) {
+            SLibUtils.showException(this, e);
+        }
+        catch (Exception e) {
+            SLibUtils.showException(this, e);
         }
     }
 
@@ -87,8 +121,9 @@ public class SGuiSession implements SGuiController {
         miConfigBranch = null;
         miConfigBranchHq = null;
         miEdsSignature = null;
-        miSessionServerSide = null;
         miModuleUtils = null;
+        miSessionServerSide = null;
+        
         mvModules.clear();
     }
 
@@ -99,14 +134,14 @@ public class SGuiSession implements SGuiController {
     public void setCurrentDate(Date t) { mtCurrentDate = t; }
     public void setUserTs(Date t) { mtUserTs = t; }
     public void setDatabase(SDbDatabase o) { moDatabase = o; prepareDatabase(); }
-    public void setStatement(Statement i) { miStatement = i; }
+    //public void setStatement(Statement i) { miStatement = i; } // statement should not be set manually
     public void setConfigSystem(SGuiConfigSystem i) { miConfigSystem = i; }
     public void setConfigCompany(SGuiConfigCompany i) { miConfigCompany = i; }
     public void setConfigBranch(SGuiConfigBranch i) { miConfigBranch = i; }
     public void setConfigBranchHq(SGuiConfigBranch i) { miConfigBranchHq = i; }
     public void setEdsSignature(SGuiEdsSignature i) { miEdsSignature = i; }
-    public void setSessionServerSide(SSrvSessionServerSide i) { miSessionServerSide = i; }
     public void setModuleUtils(SGuiModuleUtils i) { miModuleUtils = i; }
+    public void setSessionServerSide(SSrvSessionServerSide i) { miSessionServerSide = i; }
 
     public SGuiClient getClient() { return miClient; }
     public SGuiUser getUser() { return miUser; }
@@ -115,23 +150,24 @@ public class SGuiSession implements SGuiController {
     public Date getCurrentDate() { return mtCurrentDate; }
     public Date getUserTs() { return mtUserTs; }
     public SDbDatabase getDatabase() { return moDatabase; }
-    public Statement getStatement() { return miStatement; }
+    public Statement getStatement() { checkStatement(); return miStatement; }
     public SGuiConfigSystem getConfigSystem() { return miConfigSystem; }
     public SGuiConfigCompany getConfigCompany() { return miConfigCompany; }
     public SGuiConfigBranch getConfigBranch() { return miConfigBranch; }
     public SGuiConfigBranch getConfigBranchHq() { return miConfigBranchHq; }
     public SGuiEdsSignature getEdsSignature() { return miEdsSignature; }
-    public SSrvSessionServerSide getSessionServerSide() { return miSessionServerSide; }
     public SGuiModuleUtils getModuleUtils() { return miModuleUtils; }
+    public SSrvSessionServerSide getSessionServerSide() { return miSessionServerSide; }
     public Vector<SGuiModule> getModules() { return mvModules; }
 
+    
     public int getSystemYear() { return SLibTimeUtils.digestYear(mtSystemDate)[0]; }
     public int getCurrentYear() { return SLibTimeUtils.digestYear(mtCurrentDate)[0]; }
 
     /**
      * Gets module by module type.
      * @param type Module type. Constants defined in DModConsts (MOD_...).
-     * @return 
+     * @return GUI module.
      */
     public SGuiModule getModule(final int type) {
         return getModule(type, SLibConsts.UNDEFINED);
@@ -141,7 +177,7 @@ public class SGuiSession implements SGuiController {
      * Gets module by module type and subtype.
      * @param type Module type. Constants defined in DModConsts (MOD_...).
      * @param subtype Module subtype. Constants defined in DModSysConsts (CS_MOD_...).
-     * @return 
+     * @return GUI module.
      */
     public SGuiModule getModule(final int type, final int subtype) {
         SGuiModule module = null;
@@ -158,9 +194,9 @@ public class SGuiSession implements SGuiController {
 
     /**
      * Gets module by GUI type and subtype (i.e. registry, view, form, etc.).
-     * @param type
-     * @param subtype
-     * @return 
+     * @param type Module type. Constants defined in DModConsts (MOD_...).
+     * @param subtype Module subtype. Constants defined in DModSysConsts (CS_MOD_...).
+     * @return GUI module.
      */
     public SGuiModule getModuleByGuiType(final int type, final int subtype) {
         SGuiModule module = null;
@@ -241,7 +277,7 @@ public class SGuiSession implements SGuiController {
      * Reads database registry (reading verbose mode).
      * @param type Registry type.
      * @param pk Registry primary key.
-     * @return 
+     * @return Registry.
      */
     @Override
     public SDbRegistry readRegistry(final int type, final int[] pk) {
@@ -253,7 +289,7 @@ public class SGuiSession implements SGuiController {
      * @param type Registry type.
      * @param pk Registry primary key.
      * @param mode Reading mode. Constants defined in DDbConsts (MODE_VERBOSE, MODE_STEALTH).
-     * @return 
+     * @return Registry.
      */
     @Override
     public SDbRegistry readRegistry(final int type, final int[] pk, final int mode) {
