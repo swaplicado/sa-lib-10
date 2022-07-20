@@ -44,7 +44,7 @@ public class SGmail {
     /** Directory to store authorization tokens for this application.  */
     private static final String TOKENS_DIRECTORY = "tokens";
     /** Global instance of the Gmail scopes required. If modifying these scopes, delete your previously saved /tokens folder. */
-    private static final List<String> GMAIL_SCOPES = Collections.singletonList(GmailScopes.GMAIL_LABELS);
+    private static final List<String> GMAIL_SCOPES = Collections.singletonList(GmailScopes.GMAIL_SEND);
     /** Google Cloud Platform credentials. */
     private static final String GOOGLE_CREDENTIALS_FILE = "/resources/credentials.json";
     
@@ -95,12 +95,11 @@ public class SGmail {
         return message;
     }
     
-    public Message sendMessage(final MimeMessage mimeMessage) throws IOException, MessagingException {
+    public void sendMessage(final MimeMessage mimeMessage) throws IOException, MessagingException {
         Message message = createMessage(mimeMessage);
         message = moGmailService.users().messages().send("me", message).execute();
         
         System.out.println("Message ID: " + message.getId());
         System.out.println(message.toPrettyString());
-        return message;
     }
 }

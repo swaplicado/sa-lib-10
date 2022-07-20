@@ -31,7 +31,7 @@ public class SMessage {
     protected ArrayList<String> maToRecipients;
     protected ArrayList<String> maCcRecipients;
     protected ArrayList<String> maBccRecipients;
-    protected ArrayList<File> maAtachments;
+    protected ArrayList<File> maAttachments;
 
     /**
      * Create a new email message.
@@ -82,7 +82,7 @@ public class SMessage {
         maToRecipients = new ArrayList<>(toRecipients);
         maCcRecipients = new ArrayList<>(ccRecipients);
         maBccRecipients = new ArrayList<>(bccRecipients);
-        maAtachments = new ArrayList<>();
+        maAttachments = new ArrayList<>();
     }
 
     public String getFrom() {
@@ -113,8 +113,8 @@ public class SMessage {
         return maBccRecipients;
     }
 
-    public ArrayList<File> getAtachments() {
-        return maAtachments;
+    public ArrayList<File> getAttachments() {
+        return maAttachments;
     }
     
     public MimeMessage createMimeMessage() throws MessagingException, Exception {
@@ -164,7 +164,7 @@ public class SMessage {
         
         // part: attachments:
         
-        for (File file : maAtachments) {
+        for (File file : maAttachments) {
             MimeBodyPart partAttachment = new MimeBodyPart();
             partAttachment.setDataHandler(new DataHandler(new FileDataSource(file)));
             partAttachment.setFileName(file.getName());
