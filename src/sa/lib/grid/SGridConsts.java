@@ -110,7 +110,15 @@ public abstract class SGridConsts {
     public static final int ICON_XML_ANNUL = 23;
     public static final int ICON_XML_ANNUL_PDF = 26;
     public static final int ICON_XML_ANNUL_XML = 27;
-
+    public static final int ICON_CIRC_WHITE = 101;
+    public static final int ICON_CIRC_RED = 102;
+    public static final int ICON_CIRC_YELLOW = 103;
+    public static final int ICON_CIRC_GREEN = 104;
+    public static final int ICON_CIRC_CYAN = 105;
+    public static final int ICON_CIRC_BLUE = 106;
+    public static final int ICON_CIRC_MAGENTA = 107;
+    public static final int ICON_CIRC_BLACK = 108;
+    
     public static final int MAX_DECS = 8;
 
     public static final Color COLOR_FG_EDIT = new Color(0, 0, 255);
