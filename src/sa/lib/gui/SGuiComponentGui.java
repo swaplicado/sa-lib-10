@@ -10,18 +10,18 @@ import java.util.HashMap;
 
 /**
  *
- * @author Juan Barajas
+ * @author Sergio Flores
  */
 public class SGuiComponentGui {
 
     protected SGuiSession moSession;
     protected Component moComponentGui;
-    protected HashMap<Integer, Integer> moUserPrivilegesMap;    // map of <privilege, level access>
+    protected HashMap<Integer, Integer> moUserPrivilegesMap; // map of <privilege, level access>
     
     public SGuiComponentGui(SGuiSession session, Component component) {
         moSession = session;
         moComponentGui = component;
-        moUserPrivilegesMap = new HashMap<Integer, Integer>();
+        moUserPrivilegesMap = new HashMap<>();
     }
     
     public Component getComponentGui() { return  moComponentGui; }

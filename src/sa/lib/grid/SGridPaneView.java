@@ -87,6 +87,7 @@ public abstract class SGridPaneView extends JPanel implements SGridPane, ListSel
     protected HashMap<Integer, Integer> moColumnComplementsMap;
 
     protected int mnListSelectionModel;
+    protected int mnRenderAttempts;
     protected int[] manUserGuiKey;
     protected SGuiUserGui miUserGui;
 
@@ -130,6 +131,7 @@ public abstract class SGridPaneView extends JPanel implements SGridPane, ListSel
         msSql = "";
         moPaneParams = params;
         moFormParams = null;
+        mnRenderAttempts = 0;
 
         mnPrivilegeView = privilegeView;
         mnUserLevelAccess = miClient.getSession().getUser().getPrivilegeLevel(mnPrivilegeView);
@@ -429,10 +431,10 @@ public abstract class SGridPaneView extends JPanel implements SGridPane, ListSel
         moModel = new SGridModel();
         moSeeker = new SGridSeeker(miClient.getFrame());
         moPaneSettings = null;
-        moSuscriptionsSet = new HashSet<Integer>();
-        miSortKeysList = new ArrayList<RowSorter.SortKey>();
-        moFiltersMap = new HashMap<Integer, SGridFilterValue>();
-        moColumnComplementsMap = new HashMap<Integer, Integer>();
+        moSuscriptionsSet = new HashSet<>();
+        miSortKeysList = new ArrayList<>();
+        moFiltersMap = new HashMap<>();
+        moColumnComplementsMap = new HashMap<>();
 
         mbClearSettingsNeeded = false;
         mbReloadNeeded = false;
@@ -442,7 +444,7 @@ public abstract class SGridPaneView extends JPanel implements SGridPane, ListSel
         mbApplyEdit = false;
         mbApplyDisable = false;
         mbApplyDelete = false;
-        maComponentGuis = new ArrayList<SGuiComponentGui>();
+        maComponentGuis = new ArrayList<>();
 
         defineSuscriptions();
 
@@ -490,13 +492,6 @@ public abstract class SGridPaneView extends JPanel implements SGridPane, ListSel
 
         miUserGui = miClient.readUserGui(manUserGuiKey);
 
-        /* Filter user preferences temporarily disabled (jbarajas, 2013-12-05):
-
-        * if (miUserGui != null) {
-            computeUserGuiFilters(null);
-        }
-        */
-
         SGuiUtils.createActionMap(this, this, "actionRowNew", "rowNew", KeyEvent.VK_N, KeyEvent.CTRL_DOWN_MASK);
         SGuiUtils.createActionMap(this, this, "actionRowEdit", "rowEdit", KeyEvent.VK_M, KeyEvent.CTRL_DOWN_MASK);
         SGuiUtils.createActionMap(this, this, "actionRowCopy", "rowCopy", KeyEvent.VK_D, KeyEvent.CTRL_DOWN_MASK);
@@ -505,12 +500,12 @@ public abstract class SGridPaneView extends JPanel implements SGridPane, ListSel
         SGuiUtils.createActionMap(this, this, "actionGridSaveCsv", "gridSaveCsv", KeyEvent.VK_G, KeyEvent.CTRL_DOWN_MASK);
         SGuiUtils.createActionMap(this, this, "actionGridClearSettings", "gridClearSettings", KeyEvent.VK_L, KeyEvent.CTRL_DOWN_MASK);
         SGuiUtils.createActionMap(this, this, "actionGridReload", "gridReload", KeyEvent.VK_R, KeyEvent.CTRL_DOWN_MASK);
-        SGuiUtils.createActionMap(this, this, "actionGridSeekValue", "gridSeekValue", KeyEvent.VK_B, KeyEvent.CTRL_DOWN_MASK);
         SGuiUtils.createActionMap(this, this, "actionGridSeekValue", "gridSeekValue", KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK);
         SGuiUtils.createActionMap(this, this, "grabFocusToSearch", "focusToSearch", KeyEvent.VK_B, KeyEvent.CTRL_DOWN_MASK);
         SGuiUtils.createActionMap(this, this, "actionGridSearchNextValue", "gridSearchNextValue", KeyEvent.VK_F3, 0);
     }
 
+    // This method differs from SA-Lib.
     protected void computeUserGuiFilters(final SXmlGridXml gridXml_n) {
         SXmlGridXml gridXml = gridXml_n;
 
@@ -639,11 +634,6 @@ public abstract class SGridPaneView extends JPanel implements SGridPane, ListSel
                     miSortKeysList.add(sortKey);
                 }
             }
-
-            /* Filter user preferences temporaly disabled (jbarajas, 2013-12-05):
-
-            computeUserGuiFilters(gridXml);
-            */
         }
         catch (Exception e) {
             SLibUtils.printException(this, e);
@@ -720,7 +710,7 @@ public abstract class SGridPaneView extends JPanel implements SGridPane, ListSel
             // Sort keys:
 
             if (sortKeys.isEmpty()) {
-                sortKeys = new ArrayList<RowSorter.SortKey>();
+                sortKeys = new ArrayList<>();
                 sortKeys.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));    // just in case there are not sort keys
             }
             
@@ -731,8 +721,7 @@ public abstract class SGridPaneView extends JPanel implements SGridPane, ListSel
                 gridXml.getXmlElements().add(xmlSortKey);
             }
 
-            /* Filter user preferences temporarily disabled (jbarajas, 2013-12-05):
-
+            /* Filter user preferences temporarily disabled (Sergio Flores, 2013-12-05):
             // Filters:
 
             if (!moFiltersMap.isEmpty()) {
@@ -990,7 +979,7 @@ public abstract class SGridPaneView extends JPanel implements SGridPane, ListSel
                     gridColumnView = (SGridColumnView) moModel.getGridColumns().get(col);
 
                     if (colsWithRpn[col]) {
-                        gridRowView.getValues().add(new Double(0));
+                        gridRowView.getValues().add((double) 0);
                     }
                     else {
                         colClass = SGridUtils.getDataTypeClass(gridColumnView.getColumnType());
@@ -1128,6 +1117,8 @@ public abstract class SGridPaneView extends JPanel implements SGridPane, ListSel
 
                 moModel.getGridRows().add(gridRowView);
             }
+            
+            mnRenderAttempts = 0; // clear count, data already read
         }
         catch (SQLException e) {
             SLibUtils.showException(this, e);
@@ -1352,7 +1343,7 @@ public abstract class SGridPaneView extends JPanel implements SGridPane, ListSel
         String text = jtfGridSearch.getText().trim(); // just a simple trim
         
         if (!text.isEmpty() && jtTable.getRowCount() > 0) {
-            SGridUtils.searchValue(this, jtfGridSearch.getText(), true);
+            SGridUtils.searchValue(this, text, true);
             jbGridSearchNext.requestFocusInWindow();
         }
     }
@@ -1361,7 +1352,7 @@ public abstract class SGridPaneView extends JPanel implements SGridPane, ListSel
         String text = jtfGridSearch.getText().trim(); // just a simple trim
         
         if (!text.isEmpty() && jtTable.getRowCount() > 0) {
-            SGridUtils.searchValue(this, jtfGridSearch.getText(), false);
+            SGridUtils.searchValue(this, text, false);
         }
     }
 
@@ -1414,9 +1405,9 @@ public abstract class SGridPaneView extends JPanel implements SGridPane, ListSel
      * Abstract methods
      */
 
-    public abstract void defineSuscriptions();
     public abstract void prepareSqlQuery();
     public abstract ArrayList<SGridColumnView> createGridColumns();
+    public abstract void defineSuscriptions();
 
     /*
      * Public methods
@@ -1473,6 +1464,11 @@ public abstract class SGridPaneView extends JPanel implements SGridPane, ListSel
             posHor = jspScrollPane.getHorizontalScrollBar().getValue();
         }
 
+        if (mnRenderAttempts++ > 1) {
+            miClient.showMsgBoxWarning("Se alcanzó el número máximo de intentos para mostrar esta vista.");
+            return;
+        }
+        
         readGridData();
 
         if (refreshMode == SGridConsts.REFRESH_MODE_RELOAD) {
