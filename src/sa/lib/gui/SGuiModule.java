@@ -47,6 +47,7 @@ public abstract class SGuiModule implements SGuiController {
     protected boolean mbServerPresent;
     protected JMenu[] maMenus;
     protected SDbRegistry moLastRegistry;
+    protected int mnLastFormResult;
     protected HashMap<SGuiUserForm, SGuiForm> moUserFormsMap;
     protected ImageIcon moModuleIcon;
     /* Bloque de codigo de respaldo correspondiente a la version con Redis de candado de acceso exclusivo a registro
@@ -61,6 +62,7 @@ public abstract class SGuiModule implements SGuiController {
         mbServerPresent = miClient.getSession().getSessionServerSide() != null;
         maMenus = null;
         moLastRegistry = null;
+        mnLastFormResult = 0;
         moUserFormsMap = null;
         moModuleIcon = null;
         /* Bloque de codigo de respaldo correspondiente a la version con Redis de candado de acceso exclusivo a registro
@@ -165,6 +167,7 @@ public abstract class SGuiModule implements SGuiController {
     public int getModuleType() { return mnModuleType; }
     public int getModuleSubtype() { return mnModuleSubtype; }
     public SDbRegistry getLastRegistry() { return moLastRegistry; }
+    public int getLastFormResult() { return mnLastFormResult; }
     public HashMap<SGuiUserForm, SGuiForm> getUserFormsMap() { return moUserFormsMap; }
     public ImageIcon getModuleIcon() { return moModuleIcon; }
     public void afterRegistrySaved() { }
@@ -269,6 +272,7 @@ public abstract class SGuiModule implements SGuiController {
             form = getForm(type, subtype, params);
             registry = getRegistry(type, params);
             moLastRegistry = null;
+            mnLastFormResult = 0;
 
             if (params == null) {
                 registry.setFormAction(SGuiConsts.FORM_ACTION_NEW);
@@ -321,7 +325,7 @@ public abstract class SGuiModule implements SGuiController {
 
             form.setFormVisible(true);
 
-            if (form.getFormResult() == SGuiConsts.FORM_RESULT_OK) {
+            if ((mnLastFormResult = form.getFormResult()) == SGuiConsts.FORM_RESULT_OK) {
                 registry = form.getRegistry();
                 /* Bloque de codigo de respaldo correspondiente a la version antigua de candado de acceso exclusivo a registro      
                 if (mbServerPresent) {
