@@ -6,7 +6,11 @@
 package sa.lib.mail;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import javax.activation.DataHandler;
 import javax.activation.FileDataSource;
 import javax.mail.BodyPart;
@@ -32,6 +36,7 @@ public class SMail {
     protected ArrayList<String> maCcRecipients;
     protected ArrayList<String> maBccRecipients;
     protected ArrayList<File> maAttachments;
+    protected Map<String, String> mpInlineImages;
 
     /**
      * @param sender Mail sender.
@@ -84,6 +89,7 @@ public class SMail {
         maCcRecipients = ccRecipients;
         maBccRecipients = bccRecipients;
         maAttachments = new ArrayList<>();
+        mpInlineImages = new HashMap<>();
     }
 
     public void setSender(SMailSender o) { moSender = o; }
@@ -99,6 +105,7 @@ public class SMail {
     public ArrayList<String> getCcRecipients() { return maCcRecipients; }
     public ArrayList<String> getBccRecipients() { return maBccRecipients; }
     public ArrayList<File> getAttachments() { return maAttachments; }
+    public Map<String, String> getInlineImages() { return mpInlineImages; }
 
     public void send() throws MessagingException {
         BodyPart bodyPart = null;
@@ -108,7 +115,7 @@ public class SMail {
 
         // Attachments:
 
-        mimeMultipart = new MimeMultipart();
+        mimeMultipart = new MimeMultipart("related");
 
         for (int i = 0; i < maAttachments.size(); i++) {
             BodyPart attachment = new MimeBodyPart();
@@ -131,6 +138,26 @@ public class SMail {
         }
 
         mimeMultipart.addBodyPart(bodyPart);
+        
+        // adds inline image attachments
+        if (mpInlineImages != null && mpInlineImages.size() > 0) {
+            Set<String> setImageID = mpInlineImages.keySet();
+
+            for (String contentId : setImageID) {
+                MimeBodyPart imagePart = new MimeBodyPart();
+                imagePart.setHeader("Content-ID", "<" + contentId + ">");
+                imagePart.setDisposition(MimeBodyPart.INLINE);
+                String imageFilePath = mpInlineImages.get(contentId);
+                try {
+                    imagePart.attachFile(imageFilePath);
+                }
+                catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+
+                mimeMultipart.addBodyPart(imagePart);
+            }
+        }
 
         // Message:
 
