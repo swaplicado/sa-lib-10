@@ -8,6 +8,7 @@ package sa.lib.mail;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -24,7 +25,7 @@ import javax.mail.internet.MimeMultipart;
 
 /**
  *
- * @author Sergio Flores
+ * @author Sergio Flores, Edwin Carmona
  */
 public class SMail {
 
@@ -32,6 +33,7 @@ public class SMail {
     protected String msSubject;
     protected String msBody;
     protected String msContentType;
+    protected Date mtSentDate;
     protected ArrayList<String> maToRecipients;
     protected ArrayList<String> maCcRecipients;
     protected ArrayList<String> maBccRecipients;
@@ -85,6 +87,7 @@ public class SMail {
         msSubject = subject;
         msBody = body;
         msContentType = contentType;
+        mtSentDate = null;
         maToRecipients = toRecipients;
         maCcRecipients = ccRecipients;
         maBccRecipients = bccRecipients;
@@ -96,6 +99,7 @@ public class SMail {
     public void setSubject(String s) { msSubject = s; }
     public void setBody(String s) { msBody = s; }
     public void setContentType(String s) { msContentType = s; }
+    public void setSentDate(Date t) { mtSentDate = t; }
 
     public SMailSender getSender() { return moSender; }
     public String getSubject() { return msSubject; }
@@ -164,6 +168,9 @@ public class SMail {
         mimeMessage = new MimeMessage(moSender.getSession());
         mimeMessage.setFrom(new InternetAddress(moSender.getMailFrom()));
         mimeMessage.setSubject(msSubject);
+        if (this.mtSentDate != null) {
+            mimeMessage.setSentDate(this.mtSentDate);
+        }
 
         if (msContentType.isEmpty()) {
             mimeMessage.setContent(mimeMultipart);
