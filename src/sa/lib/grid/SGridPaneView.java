@@ -177,6 +177,7 @@ public abstract class SGridPaneView extends JPanel implements SGridPane, ListSel
         jpStatusCenter = new javax.swing.JPanel();
         jtfGridSearch = new javax.swing.JTextField();
         jbGridSearchNext = new javax.swing.JButton();
+        jbGridSearchNextCol = new javax.swing.JButton();
         jpStatusRight = new javax.swing.JPanel();
         jtbAutoReload = new javax.swing.JToggleButton();
 
@@ -350,8 +351,8 @@ public abstract class SGridPaneView extends JPanel implements SGridPane, ListSel
         });
         jpStatusCenter.add(jtfGridSearch);
 
-        jbGridSearchNext.setIcon(new javax.swing.ImageIcon(getClass().getResource("/sa/lib/img/cmd_grid_next.gif"))); // NOI18N
-        jbGridSearchNext.setToolTipText("Siguiente (F3)");
+        jbGridSearchNext.setIcon(new javax.swing.ImageIcon(getClass().getResource("/sa/lib/img/cmd_grid_next_row.gif"))); // NOI18N
+        jbGridSearchNext.setToolTipText("Siguiente renglón (F3)");
         jbGridSearchNext.setPreferredSize(new java.awt.Dimension(23, 23));
         jbGridSearchNext.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -359,6 +360,16 @@ public abstract class SGridPaneView extends JPanel implements SGridPane, ListSel
             }
         });
         jpStatusCenter.add(jbGridSearchNext);
+
+        jbGridSearchNextCol.setIcon(new javax.swing.ImageIcon(getClass().getResource("/sa/lib/img/cmd_grid_next.gif"))); // NOI18N
+        jbGridSearchNextCol.setToolTipText("Siguiente renglón");
+        jbGridSearchNextCol.setPreferredSize(new java.awt.Dimension(23, 23));
+        jbGridSearchNextCol.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbGridSearchNextColActionPerformed(evt);
+            }
+        });
+        jpStatusCenter.add(jbGridSearchNextCol);
 
         jpStatus.add(jpStatusCenter, java.awt.BorderLayout.CENTER);
 
@@ -427,6 +438,10 @@ public abstract class SGridPaneView extends JPanel implements SGridPane, ListSel
     private void jbGridSearchNextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbGridSearchNextActionPerformed
         actionGridSearchNextValue();
     }//GEN-LAST:event_jbGridSearchNextActionPerformed
+
+    private void jbGridSearchNextColActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbGridSearchNextColActionPerformed
+        actionGridSearchNextColValue();
+    }//GEN-LAST:event_jbGridSearchNextColActionPerformed
 
     private void initComponentsCustom() {
         moModel = new SGridModel();
@@ -1360,6 +1375,14 @@ public abstract class SGridPaneView extends JPanel implements SGridPane, ListSel
             SGridUtils.searchValue(this, text, false);
         }
     }
+    
+    public void actionGridSearchNextColValue() {
+        String text = jtfGridSearch.getText().trim(); // just a simple trim
+        
+        if (!text.isEmpty() && jtTable.getRowCount() > 0) {
+            SGridUtils.searchValueCol(this, text);
+        }
+    }
 
     public void actionToggleFilterDeleted() {
         if (jtbFilterDeleted.isEnabled()) {
@@ -1380,6 +1403,7 @@ public abstract class SGridPaneView extends JPanel implements SGridPane, ListSel
     private javax.swing.JButton jbGridReload;
     private javax.swing.JButton jbGridSaveCsv;
     private javax.swing.JButton jbGridSearchNext;
+    private javax.swing.JButton jbGridSearchNextCol;
     protected javax.swing.JButton jbRowCopy;
     protected javax.swing.JButton jbRowDelete;
     protected javax.swing.JButton jbRowDisable;
