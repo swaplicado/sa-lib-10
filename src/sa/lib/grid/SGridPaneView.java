@@ -94,6 +94,7 @@ public abstract class SGridPaneView extends JPanel implements SGridPane, ListSel
 
     protected int mnPrivilegeView;
     protected int mnUserLevelAccess;
+    protected boolean mbPreventUserGuiFromSaving;
     protected boolean mbClearSettingsNeeded;
     protected boolean mbReloadNeeded;
     protected boolean mbApplyNew;
@@ -105,21 +106,26 @@ public abstract class SGridPaneView extends JPanel implements SGridPane, ListSel
 
     /** Creates new form SGridPaneView */
     public SGridPaneView(SGuiClient client, int viewType, int gridType, int gridSubtype, String title) {
-        this(client, viewType, gridType, gridSubtype, title, SLibConsts.UNDEFINED, null);
+        this(client, viewType, gridType, gridSubtype, title, SLibConsts.UNDEFINED, null, false);
     }
 
     /** Creates new form SGridPaneView */
     public SGridPaneView(SGuiClient client, int viewType, int gridType, int gridSubtype, String title, SGuiParams params) {
-        this(client, viewType, gridType, gridSubtype, title, SLibConsts.UNDEFINED, params);
+        this(client, viewType, gridType, gridSubtype, title, SLibConsts.UNDEFINED, params, false);
     }
 
     /** Creates new form SGridPaneView */
     public SGridPaneView(SGuiClient client, int viewType, int gridType, int gridSubtype, String title, int privilegeView) {
-        this(client, viewType, gridType, gridSubtype, title, privilegeView, null);
+        this(client, viewType, gridType, gridSubtype, title, privilegeView, null, false);
     }
 
     /** Creates new form SGridPaneView */
     public SGridPaneView(SGuiClient client, int viewType, int gridType, int gridSubtype, String title, int privilegeView, SGuiParams params) {
+        this(client, viewType, gridType, gridSubtype, title, privilegeView, params, false);
+    }
+
+    /** Creates new form SGridPaneView */
+    public SGridPaneView(SGuiClient client, int viewType, int gridType, int gridSubtype, String title, int privilegeView, SGuiParams params, boolean preventUserGuiFromSaving) {
         miClient = client;
         mnGridType = gridType;
         mnGridSubtype = gridSubtype;
@@ -136,6 +142,7 @@ public abstract class SGridPaneView extends JPanel implements SGridPane, ListSel
 
         mnPrivilegeView = privilegeView;
         mnUserLevelAccess = miClient.getSession().getUser().getPrivilegeLevel(mnPrivilegeView);
+        mbPreventUserGuiFromSaving = preventUserGuiFromSaving;
 
         initComponents();
         initComponentsCustom();
@@ -506,7 +513,7 @@ public abstract class SGridPaneView extends JPanel implements SGridPane, ListSel
                 miClient.showMsgBoxError(SLibConsts.ERR_MSG_OPTION_UNKNOWN);
         }
 
-        miUserGui = miClient.readUserGui(manUserGuiKey);
+        miUserGui = mbPreventUserGuiFromSaving ? null : miClient.readUserGui(manUserGuiKey);
 
         SGuiUtils.createActionMap(this, this, "actionRowNew", "rowNew", KeyEvent.VK_N, KeyEvent.CTRL_DOWN_MASK);
         SGuiUtils.createActionMap(this, this, "actionRowEdit", "rowEdit", KeyEvent.VK_M, KeyEvent.CTRL_DOWN_MASK);
@@ -519,6 +526,11 @@ public abstract class SGridPaneView extends JPanel implements SGridPane, ListSel
         SGuiUtils.createActionMap(this, this, "actionGridSeekValue", "gridSeekValue", KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK);
         SGuiUtils.createActionMap(this, this, "grabFocusToSearch", "focusToSearch", KeyEvent.VK_B, KeyEvent.CTRL_DOWN_MASK);
         SGuiUtils.createActionMap(this, this, "actionGridSearchNextValue", "gridSearchNextValue", KeyEvent.VK_F3, 0);
+    }
+    
+    protected void initGrid() {
+        miUserGui = null; // reset grid's user preferences
+        populateGrid(SGridConsts.REFRESH_MODE_RESET);
     }
 
     // This method differs from SA-Lib.
@@ -654,8 +666,7 @@ public abstract class SGridPaneView extends JPanel implements SGridPane, ListSel
         catch (Exception e) {
             SLibUtils.printException(this, e);
             miClient.showMsgBoxWarning(SGridConsts.ERR_MSG_PREFS_VIEW);
-            miUserGui = null;   // reset grid's user preferences
-            populateGrid(SGridConsts.REFRESH_MODE_RESET);
+            initGrid();
         }
 
         // Check if customized columns are equivalent to default columns:
@@ -690,7 +701,7 @@ public abstract class SGridPaneView extends JPanel implements SGridPane, ListSel
     }
 
     protected void preserveUserGui() {
-        if (jtTable != null && jtTable.getRowSorter() != null) {
+        if (!mbPreventUserGuiFromSaving && jtTable != null && jtTable.getRowSorter() != null) {
             String xml = "";
             SXmlGridXml gridXml = new SXmlGridXml(SGridConsts.GRID_PANE_VIEW);
             @SuppressWarnings("unchecked")
@@ -1156,8 +1167,7 @@ public abstract class SGridPaneView extends JPanel implements SGridPane, ListSel
             catch (Exception e) {
                 SLibUtils.printException(this, e);
                 miClient.showMsgBoxWarning(SGridConsts.ERR_MSG_PREFS_VIEW);
-                miUserGui = null;   // reset grid's user preferences
-                populateGrid(SGridConsts.REFRESH_MODE_RESET);
+                initGrid();
             }
 
             if (dataAvailable) {
@@ -1331,8 +1341,7 @@ public abstract class SGridPaneView extends JPanel implements SGridPane, ListSel
     public void actionGridClearSettings() {
         if (jbGridClearSettings.isEnabled()) {
             if (miClient.showMsgBoxConfirm(SGridConsts.MSG_CONFIRM_RESET_SETTINGS) == JOptionPane.YES_OPTION) {
-                miUserGui = null;
-                populateGrid(SGridConsts.REFRESH_MODE_RESET);
+                initGrid();
 
                 if (mbClearSettingsNeeded) {
                     mbClearSettingsNeeded = false;
