@@ -102,6 +102,7 @@ public abstract class SGridPaneView extends JPanel implements SGridPane, ListSel
     protected boolean mbApplyEdit;
     protected boolean mbApplyDisable;
     protected boolean mbApplyDelete;
+    protected boolean mbShowSums;
     protected ArrayList<SGuiComponentGui> maComponentGuis;
 
     /** Creates new form SGridPaneView */
@@ -143,6 +144,8 @@ public abstract class SGridPaneView extends JPanel implements SGridPane, ListSel
         mnPrivilegeView = privilegeView;
         mnUserLevelAccess = miClient.getSession().getUser().getPrivilegeLevel(mnPrivilegeView);
         mbPreventUserGuiFromSaving = preventUserGuiFromSaving;
+        
+        mbShowSums = true;
 
         initComponents();
         initComponentsCustom();
@@ -1113,7 +1116,7 @@ public abstract class SGridPaneView extends JPanel implements SGridPane, ListSel
                 gridRowView.setRowType(SGridConsts.ROW_TYPE_SUM);
 
                 for (col = 0; col < moModel.getColumnCount(); col++) {
-                    if (!colsWithSum[col]) {
+                    if (!mbShowSums || !colsWithSum[col]) {
                         gridRowView.getValues().add(null);
                     }
                     else {
@@ -1459,6 +1462,7 @@ public abstract class SGridPaneView extends JPanel implements SGridPane, ListSel
     public void setApplyEdit(boolean b) { mbApplyEdit = b; }
     public void setApplyDisable(boolean b) { mbApplyDisable = b; }
     public void setApplyDelete(boolean b) { mbApplyDelete = b; }
+    public void setShowSums(boolean b) { mbShowSums = b; }
 
     public int getGridViewType() { return mnGridViewType; }
     public String getTitle() { return msTitle; }
@@ -1473,6 +1477,7 @@ public abstract class SGridPaneView extends JPanel implements SGridPane, ListSel
     public boolean getApplyEdit() { return  mbApplyEdit; }
     public boolean getApplyDisable() { return  mbApplyDisable; }
     public boolean getApplyDelete() { return  mbApplyDelete; }
+    public boolean getShowSums() { return mbShowSums; }
     public ArrayList<SGuiComponentGui> getComponentGuis() { return maComponentGuis; }
 
     public Object getFilterValue(int typeFilter) {
